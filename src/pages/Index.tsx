@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import Icon from '@/components/ui/icon';
+import { biologyLevels } from '@/data/biologyQuestions';
 
 interface Puzzle {
   id: number;
@@ -27,6 +29,7 @@ interface Achievement {
 }
 
 const Index = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'home' | 'puzzles' | 'levels' | 'achievements'>('home');
   
   const puzzles: Puzzle[] = [
@@ -246,12 +249,10 @@ const Index = () => {
           </div>
         )}
 
-        {(activeTab === 'puzzles' || activeTab === 'levels') && (
+        {activeTab === 'puzzles' && (
           <div className="space-y-6 animate-fade-in">
             <div className="text-center mb-8">
-              <h2 className="text-4xl font-bold mb-2">
-                {activeTab === 'puzzles' ? 'Головоломки' : 'Уровни сложности'}
-              </h2>
+              <h2 className="text-4xl font-bold mb-2">Головоломки</h2>
               <p className="text-muted-foreground text-lg">
                 Выбери задание и начни своё приключение в мир биологии
               </p>
@@ -284,6 +285,72 @@ const Index = () => {
                     <Button size="sm" className="hover-scale">
                       <Icon name="Play" size={16} />
                       <span className="ml-2">Играть</span>
+                    </Button>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'levels' && (
+          <div className="space-y-6 animate-fade-in">
+            <div className="text-center mb-8">
+              <h2 className="text-4xl font-bold mb-2">Уровни по биологии</h2>
+              <p className="text-muted-foreground text-lg">
+                Проходи уровни с вопросами по разным темам биологии
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {biologyLevels.map((level, index) => (
+                <Card 
+                  key={level.id} 
+                  className={`p-6 transition-all animate-scale-in ${
+                    level.locked 
+                      ? 'opacity-60 cursor-not-allowed' 
+                      : 'hover-scale cursor-pointer hover:shadow-xl'
+                  }`}
+                  style={{ animationDelay: `${index * 100}ms` }}
+                  onClick={() => !level.locked && navigate(`/level/${level.id}`)}
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="text-5xl">
+                      {level.locked ? '🔒' : '📚'}
+                    </div>
+                    <Badge className={getDifficultyColor(level.difficulty)}>
+                      {getDifficultyText(level.difficulty)}
+                    </Badge>
+                  </div>
+                  <h3 className="text-xl font-bold mb-2">{level.title}</h3>
+                  <p className="text-sm text-muted-foreground mb-3">{level.theme}</p>
+                  <p className="text-sm mb-4">
+                    {level.questions.length} вопросов
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex gap-1">
+                      {[1, 2, 3].map((star) => (
+                        <span key={star} className="text-xl">
+                          ☆
+                        </span>
+                      ))}
+                    </div>
+                    <Button 
+                      size="sm" 
+                      className="hover-scale"
+                      disabled={level.locked}
+                    >
+                      {level.locked ? (
+                        <>
+                          <Icon name="Lock" size={16} />
+                          <span className="ml-2">Заблокировано</span>
+                        </>
+                      ) : (
+                        <>
+                          <Icon name="Play" size={16} />
+                          <span className="ml-2">Начать</span>
+                        </>
+                      )}
                     </Button>
                   </div>
                 </Card>
